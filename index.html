@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gwint - Kalkulator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: 
+        radial-gradient(ellipse at top, rgba(45, 52, 54, 0.9) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom, rgba(30, 30, 30, 0.95) 0%, transparent 50%),
+        linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+      background-attachment: fixed;
+      font-family: 'Crimson Text', Georgia, serif;
+      color: #d4c4a8;
+      padding: 1rem;
+    }
+
+    .header {
+      text-align: center;
+      padding: 1rem 0 1.5rem;
+      position: relative;
+    }
+
+    .title {
+      font-family: 'Cinzel', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #c9a227;
+      text-shadow: 
+        0 0 20px rgba(201, 162, 39, 0.4),
+        2px 2px 4px rgba(0, 0, 0, 0.8);
+      letter-spacing: 0.3em;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-style: italic;
+      color: #8b7355;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+    }
+
+    .reset-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: linear-gradient(145deg, #3d2c2c, #2a1f1f);
+      border: 1px solid #5c4033;
+      color: #d4c4a8;
+      padding: 0.5rem 1rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 0.1em;
+    }
+
+    .reset-btn:hover {
+      background: linear-gradient(145deg, #4a3535, #352828);
+      border-color: #8b4513;
+      box-shadow: 0 0 15px rgba(139, 69, 19, 0.3);
+    }
+
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .player-section {
+      background: linear-gradient(145deg, rgba(40, 35, 30, 0.95), rgba(25, 22, 18, 0.98));
+      border: 2px solid #3d3022;
+      padding: 1rem;
+    }
+
+    .player-section.player1 {
+      border-radius: 12px 12px 0 0;
+      border-bottom: 1px solid #3d3022;
+    }
+
+    .player-section.player2 {
+      border-radius: 0 0 12px 12px;
+      border-top: none;
+    }
+
+    .player-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(201, 162, 39, 0.2);
+    }
+
+    .player-name-input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid transparent;
+      font-family: 'Cinzel', serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #c9a227;
+      padding: 0.25rem;
+      width: 200px;
+      transition: border-color 0.3s ease;
+    }
+
+    .player-name-input:focus {
+      outline: none;
+      border-bottom-color: #c9a227;
+    }
+
+    .player-score {
+      font-family: 'Cinzel', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #c9a227;
+      text-shadow: 0 0 20px rgba(201, 162, 39, 0.5);
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .player-score.winning {
+      color: #4ade80;
+      text-shadow: 0 0 25px rgba(74, 222, 128, 0.6);
+    }
+
+    .player-score.losing {
+      color: #f87171;
+      text-shadow: 0 0 25px rgba(248, 113, 113, 0.4);
+    }
+
+    .rows-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .row-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .row-container {
+      display: flex;
+      align-items: stretch;
+      gap: 0.5rem;
+    }
+
+    .horn-btn {
+      width: 50px;
+      min-height: 70px;
+      background: linear-gradient(145deg, #2a2520, #1f1b17);
+      border: 1px solid #3d3022;
+      border-radius: 6px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: grayscale(100%);
+      opacity: 0.6;
+    }
+
+    .horn-btn:hover {
+      background: linear-gradient(145deg, #352f28, #2a2520);
+      border-color: #5c4033;
+    }
+
+    .horn-btn.active {
+      filter: grayscale(0%);
+      opacity: 1;
+      background: linear-gradient(145deg, #4a3f35, #3d3328);
+      border-color: #c9a227;
+      box-shadow: 
+        0 0 15px rgba(201, 162, 39, 0.3),
+        inset 0 0 10px rgba(201, 162, 39, 0.1);
+    }
+
+    .row-content {
+      flex: 2;
+      min-width: 200px;
+      background: linear-gradient(145deg, rgba(35, 30, 25, 0.8), rgba(25, 22, 18, 0.9));
+      border: 1px solid #3d3022;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .row-content.weather-affected {
+      background: linear-gradient(145deg, rgba(50, 55, 70, 0.8), rgba(35, 40, 50, 0.9));
+      border-color: #4a6fa5;
+      box-shadow: inset 0 0 20px rgba(100, 150, 200, 0.1);
+    }
+
+    .row-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .row-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      color: #8b7355;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    .row-total {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #c9a227;
+    }
+
+    .cards-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      min-height: 36px;
+      align-items: center;
+    }
+
+    .card {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(145deg, #4a4035, #3d3328);
+      border: 1px solid #5c4033;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Cinzel', serif;
+      font-weight: 600;
+    }
+
+    .card:hover {
+      transform: scale(1.1);
+      border-color: #8b4513;
+      box-shadow: 0 0 10px rgba(139, 69, 19, 0.4);
+    }
+
+    .card.hero {
+      background: linear-gradient(145deg, #c9a227, #a08020);
+      border-color: #e0c040;
+      color: #1a1a1a;
+    }
+
+    .card.morale {
+      box-shadow: inset 0 0 8px rgba(74, 222, 128, 0.3);
+    }
+
+    .card.bond {
+      box-shadow: inset 0 0 8px rgba(147, 112, 219, 0.3);
+    }
+
+    .card-strength {
+      font-size: 0.9rem;
+    }
+
+    .card-badge {
+      position: absolute;
+      font-size: 0.5rem;
+      line-height: 1;
+    }
+
+    .hero-badge {
+      top: 1px;
+      right: 2px;
+      color: #1a1a1a;
+    }
+
+    .morale-badge {
+      bottom: 1px;
+      left: 2px;
+      color: #4ade80;
+      font-weight: bold;
+    }
+
+    .bond-badge {
+      bottom: -1px;
+      right: 1px;
+      color: #9370db;
+      font-size: 0.6rem;
+    }
+
+    .add-card-btn {
+      width: 36px;
+      height: 36px;
+      background: transparent;
+      border: 2px dashed #3d3022;
+      border-radius: 4px;
+      color: #5c4033;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .add-card-btn:hover {
+      border-color: #c9a227;
+      color: #c9a227;
+      background: rgba(201, 162, 39, 0.1);
+    }
+
+    .add-card-btn.active {
+      border-color: #c9a227;
+      color: #c9a227;
+      background: rgba(201, 162, 39, 0.1);
+      transform: rotate(45deg);
+    }
+
+    .inline-card-form {
+      flex: 1;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(145deg, rgba(50, 45, 38, 0.95), rgba(35, 30, 25, 0.98));
+      border: 1px solid #5c4033;
+      border-radius: 6px;
+      padding: 0.5rem;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .inline-card-form.visible {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .form-toggles {
+      display: flex;
+      gap: 0.3rem;
+    }
+
+    .strength-input {
+      width: 70px;
+      padding: 0.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid #3d3022;
+      border-radius: 4px;
+      color: #d4c4a8;
+      font-family: 'Crimson Text', serif;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
+    .strength-input:focus {
+      outline: none;
+      border-color: #c9a227;
+    }
+
+    .strength-input::placeholder {
+      color: #5c4a3a;
+    }
+
+    .form-checkbox {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(145deg, #2a2520, #1f1b17);
+      border: 1px solid #3d3022;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .form-checkbox:hover {
+      border-color: #5c4033;
+    }
+
+    .form-checkbox input {
+      display: none;
+    }
+
+    .form-checkbox span {
+      font-size: 0.9rem;
+      opacity: 0.4;
+      transition: opacity 0.2s ease;
+    }
+
+    .form-checkbox.checked {
+      border-color: #c9a227;
+      background: linear-gradient(145deg, #3d3328, #2a2520);
+    }
+
+    .form-checkbox.checked span {
+      opacity: 1;
+    }
+
+    .form-add-btn {
+      padding: 0.4rem 0.6rem;
+      background: linear-gradient(145deg, #c9a227, #a08020);
+      border: 1px solid #e0c040;
+      border-radius: 4px;
+      color: #1a1a1a;
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.05em;
+    }
+
+    .form-add-btn:hover {
+      background: linear-gradient(145deg, #d4ad32, #b08a25);
+      box-shadow: 0 0 10px rgba(201, 162, 39, 0.4);
+    }
+
+    .weather-bar {
+      background: linear-gradient(90deg, rgba(40, 45, 55, 0.95), rgba(50, 55, 65, 0.95), rgba(40, 45, 55, 0.95));
+      border-left: 2px solid #3d3022;
+      border-right: 2px solid #3d3022;
+      padding: 0.75rem;
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      position: relative;
+    }
+
+    .weather-bar::before {
+      content: 'POGODA';
+      position: absolute;
+      left: 50%;
+      top: -8px;
+      transform: translateX(-50%);
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      color: #5c6a7a;
+      background: #2d3545;
+      padding: 0 0.5rem;
+      letter-spacing: 0.2em;
+    }
+
+    .weather-btn {
+      padding: 0.4rem 0.8rem;
+      background: linear-gradient(145deg, #2d3545, #252d3a);
+      border: 1px solid #3d4555;
+      border-radius: 4px;
+      color: #8b9aaa;
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      letter-spacing: 0.05em;
+    }
+
+    .weather-btn:hover {
+      background: linear-gradient(145deg, #3d4555, #2d3545);
+      border-color: #5d6575;
+    }
+
+    .weather-btn.active {
+      background: linear-gradient(145deg, #4a6fa5, #3d5a8a);
+      border-color: #6a9fd5;
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(100, 150, 200, 0.4);
+    }
+
+    .weather-btn.sun {
+      color: #f0c040;
+    }
+
+    .weather-btn.sun:hover {
+      border-color: #f0c040;
+      box-shadow: 0 0 10px rgba(240, 192, 64, 0.3);
+    }
+
+    .weather-icon {
+      font-size: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .title {
+        font-size: 1.8rem;
+        letter-spacing: 0.15em;
+      }
+      
+      .player-score {
+        font-size: 2rem;
+      }
+      
+      .weather-bar {
+        flex-wrap: wrap;
+      }
+      
+      .weather-btn {
+        font-size: 0.65rem;
+        padding: 0.35rem 0.6rem;
+      }
+
+      .row-container {
+        flex-wrap: wrap;
+      }
+
+      .inline-card-form {
+        flex-wrap: wrap;
+        width: 100%;
+      }
+
+      .row-content {
+        min-width: 150px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1 class="title">GWINT</h1>
+    <p class="subtitle">Kalkulator punktów</p>
+    <button class="reset-btn" onclick="resetGame()">NOWA GRA</button>
+  </header>
+
+  <div class="game-container">
+    <!-- Player 1 -->
+    <div class="player-section player1">
+      <div class="player-header">
+        <input type="text" class="player-name-input" id="player1-name" value="Gracz 1">
+        <span class="player-score" id="player1-score">0</span>
+      </div>
+      <div class="rows-container">
+        <div class="row-wrapper">
+          <div class="row-container">
+            <button class="horn-btn" id="horn-player1-siege" onclick="toggleHorn('player1', 'siege')">🎺</button>
+            <div class="row-content" id="row-player1-siege">
+              <div class="row-header">
+                <span class="row-name">🏰 Oblężenie</span>
+                <span class="row-total" id="total-player1-siege">0</span>
+              </div>
+              <div class="cards-container" id="cards-player1-siege">
+                <button class="add-card-btn" id="add-btn-player1-siege" onclick="toggleForm('player1', 'siege')">+</button>
+              </div>
+            </div>
+            <div class="inline-card-form" id="form-player1-siege">
+              <input type="number" class="strength-input" id="strength-player1-siege" placeholder="Siła" min="0">
+              <div class="form-toggles">
+                <label class="form-checkbox" id="hero-player1-siege" onclick="toggleCheckbox('hero-player1-siege')" title="Bohater"><span>★</span></label>
+                <label class="form-checkbox" id="morale-player1-siege" onclick="toggleCheckbox('morale-player1-siege')" title="Wysokie morale"><span>+</span></label>
+                <label class="form-checkbox" id="bond-player1-siege" onclick="toggleCheckbox('bond-player1-siege')" title="Więź"><span>🤝</span></label>
+              </div>
+              <button class="form-add-btn" onclick="addCard('player1', 'siege')">Dodaj</button>
+            </div>
+          </div>
+        </div>
+        <div class="row-wrapper">
+          <div class="row-container">
+            <button class="horn-btn" id="horn-player1-ranged" onclick="toggleHorn('player1', 'ranged')">🎺</button>
+            <div class="row-content" id="row-player1-ranged">
+              <div class="row-header">
+                <span class="row-name">🏹 Dystans</span>
+                <span class="row-total" id="total-player1-ranged">0</span>
+              </div>
+              <div class="cards-container" id="cards-player1-ranged">
+                <button class="add-card-btn" id="add-btn-player1-ranged" onclick="toggleForm('player1', 'ranged')">+</button>
+              </div>
+            </div>
+            <div class="inline-card-form" id="form-player1-ranged">
+              <input type="number" class="strength-input" id="strength-player1-ranged" placeholder="Siła" min="0">
+              <div class="form-toggles">
+                <label class="form-checkbox" id="hero-player1-ranged" onclick="toggleCheckbox('hero-player1-ranged')" title="Bohater"><span>★</span></label>
+                <label class="form-checkbox" id="morale-player1-ranged" onclick="toggleCheckbox('morale-player1-ranged')" title="Wysokie morale"><span>+</span></label>
+                <label class="form-checkbox" id="bond-player1-ranged" onclick="toggleCheckbox('bond-player1-ranged')" title="Więź"><span>🤝</span></label>
+              </div>
+              <button class="form-add-btn" onclick="addCard('player1', 'ranged')">Dodaj</button>
+            </div>
+          </div>
+        </div>
+        <div class="row-wrapper">
+          <div class="row-container">
+            <button class="horn-btn" id="horn-player1-melee" onclick="toggleHorn('player1', 'melee')">🎺</button>
+            <div class="row-content" id="row-player1-melee">
+              <div class="row-header">
+                <span class="row-name">⚔️ Walka wręcz</span>
+                <span class="row-total" id="total-player1-melee">0</span>
+              </div>
+              <div class="cards-container" id="cards-player1-melee">
+                <button class="add-card-btn" id="add-btn-player1-melee" onclick="toggleForm('player1', 'melee')">+</button>
+              </div>
+            </div>
+            <div class="inline-card-form" id="form-player1-melee">
+              <input type="number" class="strength-input" id="strength-player1-melee" placeholder="Siła" min="0">
+              <div class="form-toggles">
+                <label class="form-checkbox" id="hero-player1-melee" onclick="toggleCheckbox('hero-player1-melee')" title="Bohater"><span>★</span></label>
+                <label class="form-checkbox" id="morale-player1-melee" onclick="toggleCheckbox('morale-player1-melee')" title="Wysokie morale"><span>+</span></label>
+                <label class="form-checkbox" id="bond-player1-melee" onclick="toggleCheckbox('bond-player1-melee')" title="Więź"><span>🤝</span></label>
+              </div>
+              <button class="form-add-btn" onclick="addCard('player1', 'melee')">Dodaj</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weather Bar -->
+    <div class="weather-bar">
+      <button class="weather-btn" id="weather-melee" onclick="toggleWeather('melee')">
+        <span class="weather-icon">❄️</span>Mróz
+      </button>
+      <button class="weather-btn" id="weather-ranged" onclick="toggleWeather('ranged')">
+        <span class="weather-icon">🌫️</span>Mgła
+      </button>
+      <button class="weather-btn" id="weather-siege" onclick="toggleWeather('siege')">
+        <span class="weather-icon">🌧️</span>Deszcz
+      </button>
+      <button class="weather-btn sun" onclick="clearWeather()">
+        <span class="weather-icon">☀️</span>Słońce
+      </button>
+    </div>
+
+    <!-- Player 2 -->
+    <div class="player-section player2">
+      <div class="player-header">
+        <input type="text" class="player-name-input" id="player2-name" value="Gracz 2">
+        <span class="player-score" id="player2-score">0</span>
+      </div>
+      <div class="rows-container">
+        <div class="row-wrapper">
+          <div class="row-container">
+            <button class="horn-btn" id="horn-player2-melee" onclick="toggleHorn('player2', 'melee')">🎺</button>
+            <div class="row-content" id="row-player2-melee">
+              <div class="row-header">
+                <span class="row-name">⚔️ Walka wręcz</span>
+                <span class="row-total" id="total-player2-melee">0</span>
+              </div>
+              <div class="cards-container" id="cards-player2-melee">
+                <button class="add-card-btn" id="add-btn-player2-melee" onclick="toggleForm('player2', 'melee')">+</button>
+              </div>
+            </div>
+            <div class="inline-card-form" id="form-player2-melee">
+              <input type="number" class="strength-input" id="strength-player2-melee" placeholder="Siła" min="0">
+              <div class="form-toggles">
+                <label class="form-checkbox" id="hero-player2-melee" onclick="toggleCheckbox('hero-player2-melee')" title="Bohater"><span>★</span></label>
+                <label class="form-checkbox" id="morale-player2-melee" onclick="toggleCheckbox('morale-player2-melee')" title="Wysokie morale"><span>+</span></label>
+                <label class="form-checkbox" id="bond-player2-melee" onclick="toggleCheckbox('bond-player2-melee')" title="Więź"><span>🤝</span></label>
+              </div>
+              <button class="form-add-btn" onclick="addCard('player2', 'melee')">Dodaj</button>
+            </div>
+          </div>
+        </div>
+        <div class="row-wrapper">
+          <div class="row-container">
+            <button class="horn-btn" id="horn-player2-ranged" onclick="toggleHorn('player2', 'ranged')">🎺</button>
+            <div class="row-content" id="row-player2-ranged">
+              <div class="row-header">
+                <span class="row-name">🏹 Dystans</span>
+                <span class="row-total" id="total-player2-ranged">0</span>
+              </div>
+              <div class="cards-container" id="cards-player2-ranged">
+                <button class="add-card-btn" id="add-btn-player2-ranged" onclick="toggleForm('player2', 'ranged')">+</button>
+              </div>
+            </div>
+            <div class="inline-card-form" id="form-player2-ranged">
+              <input type="number" class="strength-input" id="strength-player2-ranged" placeholder="Siła" min="0">
+              <div class="form-toggles">
+                <label class="form-checkbox" id="hero-player2-ranged" onclick="toggleCheckbox('hero-player2-ranged')" title="Bohater"><span>★</span></label>
+                <label class="form-checkbox" id="morale-player2-ranged" onclick="toggleCheckbox('morale-player2-ranged')" title="Wysokie morale"><span>+</span></label>
+                <label class="form-checkbox" id="bond-player2-ranged" onclick="toggleCheckbox('bond-player2-ranged')" title="Więź"><span>🤝</span></label>
+              </div>
+              <button class="form-add-btn" onclick="addCard('player2', 'ranged')">Dodaj</button>
+            </div>
+          </div>
+        </div>
+        <div class="row-wrapper">
+          <div class="row-container">
+            <button class="horn-btn" id="horn-player2-siege" onclick="toggleHorn('player2', 'siege')">🎺</button>
+            <div class="row-content" id="row-player2-siege">
+              <div class="row-header">
+                <span class="row-name">🏰 Oblężenie</span>
+                <span class="row-total" id="total-player2-siege">0</span>
+              </div>
+              <div class="cards-container" id="cards-player2-siege">
+                <button class="add-card-btn" id="add-btn-player2-siege" onclick="toggleForm('player2', 'siege')">+</button>
+              </div>
+            </div>
+            <div class="inline-card-form" id="form-player2-siege">
+              <input type="number" class="strength-input" id="strength-player2-siege" placeholder="Siła" min="0">
+              <div class="form-toggles">
+                <label class="form-checkbox" id="hero-player2-siege" onclick="toggleCheckbox('hero-player2-siege')" title="Bohater"><span>★</span></label>
+                <label class="form-checkbox" id="morale-player2-siege" onclick="toggleCheckbox('morale-player2-siege')" title="Wysokie morale"><span>+</span></label>
+                <label class="form-checkbox" id="bond-player2-siege" onclick="toggleCheckbox('bond-player2-siege')" title="Więź"><span>🤝</span></label>
+              </div>
+              <button class="form-add-btn" onclick="addCard('player2', 'siege')">Dodaj</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Stan gry
+    let gameState = {
+      weather: { melee: false, ranged: false, siege: false },
+      players: {
+        player1: {
+          rows: {
+            melee: { cards: [], horn: false },
+            ranged: { cards: [], horn: false },
+            siege: { cards: [], horn: false }
+          }
+        },
+        player2: {
+          rows: {
+            melee: { cards: [], horn: false },
+            ranged: { cards: [], horn: false },
+            siege: { cards: [], horn: false }
+          }
+        }
+      }
+    };
+
+    let cardIdCounter = 0;
+    let activeForm = null;
+
+    function toggleCheckbox(id) {
+      const el = document.getElementById(id);
+      el.classList.toggle('checked');
+    }
+
+    function isChecked(id) {
+      return document.getElementById(id).classList.contains('checked');
+    }
+
+    function toggleForm(playerId, rowType) {
+      const formId = `form-${playerId}-${rowType}`;
+      const btnId = `add-btn-${playerId}-${rowType}`;
+      const form = document.getElementById(formId);
+      const btn = document.getElementById(btnId);
+
+      // Zamknij poprzedni formularz
+      if (activeForm && activeForm !== formId) {
+        document.getElementById(activeForm).classList.remove('visible');
+        const prevBtnId = activeForm.replace('form-', 'add-btn-');
+        document.getElementById(prevBtnId).classList.remove('active');
+        document.getElementById(prevBtnId).textContent = '+';
+      }
+
+      if (form.classList.contains('visible')) {
+        form.classList.remove('visible');
+        btn.classList.remove('active');
+        btn.textContent = '+';
+        activeForm = null;
+      } else {
+        form.classList.add('visible');
+        btn.classList.add('active');
+        btn.textContent = '×';
+        activeForm = formId;
+        document.getElementById(`strength-${playerId}-${rowType}`).focus();
+        
+        // Reset checkboxów
+        document.getElementById(`hero-${playerId}-${rowType}`).classList.remove('checked');
+        document.getElementById(`morale-${playerId}-${rowType}`).classList.remove('checked');
+        document.getElementById(`bond-${playerId}-${rowType}`).classList.remove('checked');
+      }
+    }
+
+    function addCard(playerId, rowType) {
+      const strengthInput = document.getElementById(`strength-${playerId}-${rowType}`);
+      const strength = parseInt(strengthInput.value);
+      
+      if (isNaN(strength) || strength < 0) return;
+
+      const card = {
+        id: cardIdCounter++,
+        strength: strength,
+        isHero: isChecked(`hero-${playerId}-${rowType}`),
+        hasMorale: isChecked(`morale-${playerId}-${rowType}`),
+        hasBond: isChecked(`bond-${playerId}-${rowType}`)
+      };
+
+      gameState.players[playerId].rows[rowType].cards.push(card);
+      
+      // Reset formularza
+      strengthInput.value = '';
+      document.getElementById(`hero-${playerId}-${rowType}`).classList.remove('checked');
+      document.getElementById(`morale-${playerId}-${rowType}`).classList.remove('checked');
+      document.getElementById(`bond-${playerId}-${rowType}`).classList.remove('checked');
+      
+      renderCards(playerId, rowType);
+      updateScores();
+    }
+
+    function removeCard(playerId, rowType, cardId) {
+      const cards = gameState.players[playerId].rows[rowType].cards;
+      const index = cards.findIndex(c => c.id === cardId);
+      if (index > -1) {
+        cards.splice(index, 1);
+        renderCards(playerId, rowType);
+        updateScores();
+      }
+    }
+
+    function toggleHorn(playerId, rowType) {
+      const row = gameState.players[playerId].rows[rowType];
+      row.horn = !row.horn;
+      
+      const btn = document.getElementById(`horn-${playerId}-${rowType}`);
+      btn.classList.toggle('active', row.horn);
+      
+      updateScores();
+    }
+
+    function toggleWeather(rowType) {
+      gameState.weather[rowType] = !gameState.weather[rowType];
+      
+      const btn = document.getElementById(`weather-${rowType}`);
+      btn.classList.toggle('active', gameState.weather[rowType]);
+      
+      // Aktualizuj wygląd rzędów
+      updateWeatherEffects();
+      updateScores();
+    }
+
+    function clearWeather() {
+      gameState.weather = { melee: false, ranged: false, siege: false };
+      
+      document.getElementById('weather-melee').classList.remove('active');
+      document.getElementById('weather-ranged').classList.remove('active');
+      document.getElementById('weather-siege').classList.remove('active');
+      
+      updateWeatherEffects();
+      updateScores();
+    }
+
+    function updateWeatherEffects() {
+      ['player1', 'player2'].forEach(playerId => {
+        ['melee', 'ranged', 'siege'].forEach(rowType => {
+          const rowContent = document.getElementById(`row-${playerId}-${rowType}`);
+          rowContent.classList.toggle('weather-affected', gameState.weather[rowType]);
+        });
+      });
+    }
+
+    function calculateCardStrength(card, row, rowType) {
+      if (card.isHero) return card.strength;
+
+      let strength = card.strength;
+
+      // Więź
+      if (card.hasBond) {
+        const bondCards = row.cards.filter(c => c.hasBond && c.strength === card.strength && !c.isHero);
+        strength = card.strength * bondCards.length;
+      }
+
+      // Wysokie morale
+      const moraleCards = row.cards.filter(c => c.hasMorale && c.id !== card.id && !c.isHero);
+      strength += moraleCards.length;
+
+      // Róg
+      if (row.horn) {
+        strength *= 2;
+      }
+
+      // Pogoda
+      if (gameState.weather[rowType]) {
+        strength = 1;
+      }
+
+      return strength;
+    }
+
+    function calculateRowTotal(playerId, rowType) {
+      const row = gameState.players[playerId].rows[rowType];
+      return row.cards.reduce((total, card) => {
+        return total + calculateCardStrength(card, row, rowType);
+      }, 0);
+    }
+
+    function calculatePlayerTotal(playerId) {
+      return ['melee', 'ranged', 'siege'].reduce((total, rowType) => {
+        return total + calculateRowTotal(playerId, rowType);
+      }, 0);
+    }
+
+    function renderCards(playerId, rowType) {
+      const container = document.getElementById(`cards-${playerId}-${rowType}`);
+      const row = gameState.players[playerId].rows[rowType];
+      
+      // Zachowaj przycisk dodawania
+      const addBtn = container.querySelector('.add-card-btn');
+      
+      // Usuń stare karty
+      container.querySelectorAll('.card').forEach(c => c.remove());
+      
+      // Dodaj nowe karty przed przyciskiem
+      row.cards.forEach(card => {
+        const cardEl = document.createElement('div');
+        const calculatedStrength = calculateCardStrength(card, row, rowType);
+        
+        let classes = 'card';
+        if (card.isHero) classes += ' hero';
+        if (card.hasMorale) classes += ' morale';
+        if (card.hasBond) classes += ' bond';
+        
+        cardEl.className = classes;
+        cardEl.onclick = () => removeCard(playerId, rowType, card.id);
+        cardEl.title = `Bazowa: ${card.strength}${card.isHero ? ' (Bohater)' : ''}${card.hasMorale ? ' (Morale)' : ''}${card.hasBond ? ' (Więź)' : ''}\nKliknij aby usunąć`;
+        
+        let innerHTML = `<span class="card-strength">${calculatedStrength}</span>`;
+        if (card.isHero) innerHTML += '<span class="card-badge hero-badge">★</span>';
+        if (card.hasMorale) innerHTML += '<span class="card-badge morale-badge">+</span>';
+        if (card.hasBond) innerHTML += '<span class="card-badge bond-badge">🤝</span>';
+        
+        cardEl.innerHTML = innerHTML;
+        container.insertBefore(cardEl, addBtn);
+      });
+    }
+
+    function updateScores() {
+      // Aktualizuj sumy rzędów
+      ['player1', 'player2'].forEach(playerId => {
+        ['melee', 'ranged', 'siege'].forEach(rowType => {
+          const total = calculateRowTotal(playerId, rowType);
+          document.getElementById(`total-${playerId}-${rowType}`).textContent = total;
+          
+          // Przerenderuj karty żeby zaktualizować wyświetlaną siłę
+          renderCards(playerId, rowType);
+        });
+      });
+
+      // Aktualizuj sumy graczy
+      const player1Total = calculatePlayerTotal('player1');
+      const player2Total = calculatePlayerTotal('player2');
+      
+      const score1El = document.getElementById('player1-score');
+      const score2El = document.getElementById('player2-score');
+      
+      score1El.textContent = player1Total;
+      score2El.textContent = player2Total;
+      
+      // Kolory wygranej/przegranej
+      score1El.className = 'player-score';
+      score2El.className = 'player-score';
+      
+      if (player1Total > player2Total) {
+        score1El.classList.add('winning');
+        score2El.classList.add('losing');
+      } else if (player2Total > player1Total) {
+        score2El.classList.add('winning');
+        score1El.classList.add('losing');
+      }
+    }
+
+    function resetGame() {
+      gameState = {
+        weather: { melee: false, ranged: false, siege: false },
+        players: {
+          player1: {
+            rows: {
+              melee: { cards: [], horn: false },
+              ranged: { cards: [], horn: false },
+              siege: { cards: [], horn: false }
+            }
+          },
+          player2: {
+            rows: {
+              melee: { cards: [], horn: false },
+              ranged: { cards: [], horn: false },
+              siege: { cards: [], horn: false }
+            }
+          }
+        }
+      };
+
+      // Reset UI
+      document.querySelectorAll('.horn-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.weather-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.row-content').forEach(row => row.classList.remove('weather-affected'));
+      
+      // Zamknij formularze
+      if (activeForm) {
+        document.getElementById(activeForm).classList.remove('visible');
+        const btnId = activeForm.replace('form-', 'add-btn-');
+        document.getElementById(btnId).classList.remove('active');
+        document.getElementById(btnId).textContent = '+';
+        activeForm = null;
+      }
+
+      // Rerenderuj
+      ['player1', 'player2'].forEach(playerId => {
+        ['melee', 'ranged', 'siege'].forEach(rowType => {
+          renderCards(playerId, rowType);
+        });
+      });
+      
+      updateScores();
+    }
+
+    // Obsługa Enter w inputach
+    document.querySelectorAll('.strength-input').forEach(input => {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const [_, playerId, rowType] = input.id.split('-');
+          addCard(playerId, rowType);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
