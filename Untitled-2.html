@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turniej Gwinta – 12 graczy</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1.5cm;
+        }
+
+        :root {
+            --gold: #c9a227;
+            --gold-light: #e8d48b;
+            --gold-dark: #8b6914;
+            --parchment: #f4e4bc;
+            --parchment-dark: #d4c4a0;
+            --ink: #2a1a0a;
+            --ink-light: #4a3a2a;
+            --red: #8b2323;
+            --green: #2d5a27;
+            --blue: #1a3a5c;
+            --purple: #4a2a5c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2018 50%, #1a1a1a 100%);
+            padding: 20px;
+            color: var(--parchment);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        h1 {
+            font-family: Georgia, serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--gold);
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--parchment-dark);
+            font-style: italic;
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .time-badge {
+            background: linear-gradient(135deg, var(--ink) 0%, var(--ink-light) 100%);
+            border: 2px solid var(--gold-dark);
+            padding: 6px 15px;
+            font-family: Georgia, serif;
+            font-size: 0.85rem;
+            color: var(--gold-light);
+        }
+
+        .phase-title {
+            font-family: Georgia, serif;
+            font-size: 1.5rem;
+            color: var(--gold);
+            text-align: center;
+            margin: 25px 0 15px;
+            position: relative;
+            display: block;
+        }
+
+        .phase-title::before,
+        .phase-title::after {
+            content: '———';
+            color: var(--gold-dark);
+            margin: 0 15px;
+        }
+
+        /* Rules section */
+        .rules-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .rules-box {
+            background: linear-gradient(145deg, rgba(42,26,10,0.9) 0%, rgba(20,12,5,0.95) 100%);
+            border: 2px solid var(--gold-dark);
+            padding: 15px 20px;
+            min-width: 250px;
+            flex: 1;
+            max-width: 350px;
+        }
+
+        .rules-box h4 {
+            font-family: Georgia, serif;
+            color: var(--gold);
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .rules-table {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .rule-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .rule-result {
+            font-weight: 600;
+        }
+
+        .rule-result.win { color: #88cc88; }
+        .rule-result.draw { color: var(--gold-light); }
+        .rule-result.loss { color: #cc8888; }
+
+        .rule-points {
+            font-family: Georgia, serif;
+            font-weight: 700;
+            color: var(--gold);
+            font-size: 1.1rem;
+        }
+
+        .tiebreaker-list {
+            list-style: none;
+            counter-reset: tiebreaker;
+        }
+
+        .tiebreaker-list li {
+            counter-increment: tiebreaker;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(139,105,20,0.3);
+            font-size: 0.95rem;
+        }
+
+        .tiebreaker-list li:last-child {
+            border-bottom: none;
+        }
+
+        .tiebreaker-list li::before {
+            content: counter(tiebreaker) ".";
+            color: var(--gold);
+            font-weight: 700;
+            margin-right: 10px;
+        }
+
+        .tiebreaker-list li strong {
+            color: var(--gold-light);
+        }
+
+        .rules-note {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--parchment-dark);
+        }
+
+        /* Faza grupowa */
+        .groups-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .group {
+            background: linear-gradient(145deg, rgba(42,26,10,0.9) 0%, rgba(20,12,5,0.95) 100%);
+            border: 3px solid;
+            padding: 15px;
+            position: relative;
+            width: 23%;
+            min-width: 200px;
+        }
+
+        .group-a { border-color: var(--red); }
+        .group-b { border-color: var(--blue); }
+        .group-c { border-color: var(--green); }
+        .group-d { border-color: var(--purple); }
+
+        .group-header {
+            font-family: Georgia, serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .group-a .group-header { color: #d45555; }
+        .group-b .group-header { color: #5588cc; }
+        .group-c .group-header { color: #55aa55; }
+        .group-d .group-header { color: #9966bb; }
+
+        .players-list {
+            list-style: none;
+            margin-bottom: 12px;
+        }
+
+        .players-list li {
+            padding: 5px 8px;
+            margin: 3px 0;
+            background: rgba(244,228,188,0.08);
+            border-left: 3px solid var(--gold-dark);
+            font-size: 0.95rem;
+        }
+
+        .player-num {
+            color: var(--gold);
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .matches-title {
+            font-family: Georgia, serif;
+            font-size: 0.9rem;
+            color: var(--gold-dark);
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--gold-dark);
+            padding-bottom: 4px;
+        }
+
+        .match {
+            display: block;
+            text-align: center;
+            padding: 5px;
+            margin: 5px 0;
+            background: rgba(0,0,0,0.3);
+            font-size: 0.9rem;
+        }
+
+        .vs {
+            color: var(--gold);
+            font-weight: 700;
+            font-family: Georgia, serif;
+        }
+
+        /* Harmonogram */
+        .schedule {
+            margin: 20px 0;
+            page-break-before: always;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .schedule-table th,
+        .schedule-table td {
+            padding: 8px 10px;
+            text-align: center;
+            border: 1px solid var(--gold-dark);
+        }
+
+        .schedule-table th {
+            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%);
+            color: var(--ink);
+            font-family: Georgia, serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .schedule-table tr:nth-child(even) {
+            background: rgba(244,228,188,0.05);
+        }
+
+        .schedule-table tr:nth-child(odd) {
+            background: rgba(0,0,0,0.2);
+        }
+
+        .schedule-table td {
+            font-size: 0.85rem;
+        }
+
+        .time-cell {
+            font-family: Georgia, serif;
+            font-weight: 700;
+            color: var(--gold);
+            white-space: nowrap;
+        }
+
+        .phase-cell {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .phase-grupowa { color: #88cc88; }
+        .phase-cwiercfinal { color: #88aaee; }
+        .phase-polfinaly { color: #ee88aa; }
+        .phase-final { color: var(--gold-light); }
+
+        .table-num {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
+            border-radius: 50%;
+            font-family: Georgia, serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            margin-right: 5px;
+        }
+
+        .table-1 { background: var(--red); color: white; }
+        .table-2 { background: var(--blue); color: white; }
+        .table-3 { background: var(--green); color: white; }
+        .table-4 { background: var(--purple); color: white; }
+
+        .schedule-note {
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
+            color: var(--parchment-dark);
+            font-size: 0.85rem;
+        }
+
+        /* Faza pucharowa */
+        .bracket-container {
+            padding: 15px 0;
+        }
+
+        .bracket {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            padding: 15px;
+        }
+
+        .round {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .round-title {
+            font-family: Georgia, serif;
+            font-size: 1rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .matches-col {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            height: 100%;
+            gap: 20px;
+        }
+
+        .bracket-match {
+            background: linear-gradient(145deg, rgba(42,26,10,0.95) 0%, rgba(20,12,5,0.98) 100%);
+            border: 2px solid var(--gold-dark);
+            padding: 0;
+            min-width: 160px;
+            position: relative;
+        }
+
+        .bracket-player {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--gold-dark);
+            font-size: 0.85rem;
+        }
+
+        .bracket-player:last-child {
+            border-bottom: none;
+        }
+
+        .bracket-player .seed {
+            color: var(--gold);
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-right: 5px;
+        }
+
+        .group-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .group-badge.a { background: var(--red); }
+        .group-badge.b { background: var(--blue); }
+        .group-badge.c { background: var(--green); }
+        .group-badge.d { background: var(--purple); }
+
+        .trophy {
+            font-size: 2rem;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        /* Legenda */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold-dark);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .legend-color.a { background: var(--red); }
+        .legend-color.b { background: var(--blue); }
+        .legend-color.c { background: var(--green); }
+        .legend-color.d { background: var(--purple); }
+
+        /* Info box */
+        .info-box {
+            background: linear-gradient(145deg, rgba(201,162,39,0.15) 0%, rgba(201,162,39,0.05) 100%);
+            border: 2px solid var(--gold-dark);
+            padding: 20px;
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .info-box h3 {
+            font-family: Georgia, serif;
+            color: var(--gold);
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+
+        .info-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .info-item {
+            display: flex;
+            gap: 8px;
+            width: 45%;
+            min-width: 250px;
+        }
+
+        .info-label {
+            color: var(--gold-dark);
+        }
+
+        .info-value {
+            color: var(--parchment);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TURNIEJ GWINTA</h1>
+            <p class="subtitle">12 graczy • Faza grupowa + Puchar</p>
+        </header>
+
+        <div class="timeline">
+            <div class="time-badge">🎮 4 stoły równolegle</div>
+            <div class="time-badge">⏱ Start: 17:30</div>
+            <div class="time-badge">⏱ Koniec: ~19:20</div>
+            <div class="time-badge">⏱ Łącznie: ~90 min</div>
+        </div>
+
+        <!-- ZASADY PUNKTACJI -->
+        <div class="phase-title">Zasady punktacji</div>
+        
+        <div class="rules-container">
+            <div class="rules-box">
+                <h4>📊 Punkty za mecz</h4>
+                <div class="rules-table">
+                    <div class="rule-row">
+                        <span class="rule-result win">Wygrana</span>
+                        <span class="rule-points">3 pkt</span>
+                    </div>
+                    <div class="rule-row">
+                        <span class="rule-result draw">Remis</span>
+                        <span class="rule-points">1 pkt</span>
+                    </div>
+                    <div class="rule-row">
+                        <span class="rule-result loss">Przegrana</span>
+                        <span class="rule-points">0 pkt</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="rules-box">
+                <h4>⚖️ Tie-breaker (przy równej liczbie punktów)</h4>
+                <ol class="tiebreaker-list">
+                    <li><strong>Bezpośredni mecz</strong> – kto wygrał spotkanie między remisującymi</li>
+                    <li><strong>Suma punktów na stole</strong> – łączna siła kart ze wszystkich meczów</li>
+                    <li><strong>Losowanie</strong> – w ostateczności</li>
+                </ol>
+            </div>
+            
+            <div class="rules-box">
+                <h4>📝 Ważne</h4>
+                <p class="rules-note">Każdy gracz musi zapisywać sumę punktów swoich kart po każdym meczu! W przypadku remisu punktowego w grupie, te wartości decydują o awansie.</p>
+            </div>
+        </div>
+
+        <!-- FAZA GRUPOWA -->
+        <div class="phase-title">Faza Grupowa</div>
+        
+        <div class="groups-container">
+            <div class="group group-a">
+                <div class="group-header">
+                    <span>🛡</span> Grupa A
+                </div>
+                <ul class="players-list">
+                    <li><span><span class="player-num">1.</span>Gracz 1</span></li>
+                    <li><span><span class="player-num">2.</span>Gracz 2</span></li>
+                    <li><span><span class="player-num">3.</span>Gracz 3</span></li>
+                </ul>
+                <div class="matches-title">Mecze w grupie</div>
+                <div class="match">Gracz 1 <span class="vs">vs</span> Gracz 2</div>
+                <div class="match">Gracz 1 <span class="vs">vs</span> Gracz 3</div>
+                <div class="match">Gracz 2 <span class="vs">vs</span> Gracz 3</div>
+            </div>
+
+            <div class="group group-b">
+                <div class="group-header">
+                    <span>🛡</span> Grupa B
+                </div>
+                <ul class="players-list">
+                    <li><span><span class="player-num">1.</span>Gracz 4</span></li>
+                    <li><span><span class="player-num">2.</span>Gracz 5</span></li>
+                    <li><span><span class="player-num">3.</span>Gracz 6</span></li>
+                </ul>
+                <div class="matches-title">Mecze w grupie</div>
+                <div class="match">Gracz 4 <span class="vs">vs</span> Gracz 5</div>
+                <div class="match">Gracz 4 <span class="vs">vs</span> Gracz 6</div>
+                <div class="match">Gracz 5 <span class="vs">vs</span> Gracz 6</div>
+            </div>
+
+            <div class="group group-c">
+                <div class="group-header">
+                    <span>🛡</span> Grupa C
+                </div>
+                <ul class="players-list">
+                    <li><span><span class="player-num">1.</span>Gracz 7</span></li>
+                    <li><span><span class="player-num">2.</span>Gracz 8</span></li>
+                    <li><span><span class="player-num">3.</span>Gracz 9</span></li>
+                </ul>
+                <div class="matches-title">Mecze w grupie</div>
+                <div class="match">Gracz 7 <span class="vs">vs</span> Gracz 8</div>
+                <div class="match">Gracz 7 <span class="vs">vs</span> Gracz 9</div>
+                <div class="match">Gracz 8 <span class="vs">vs</span> Gracz 9</div>
+            </div>
+
+            <div class="group group-d">
+                <div class="group-header">
+                    <span>🛡</span> Grupa D
+                </div>
+                <ul class="players-list">
+                    <li><span><span class="player-num">1.</span>Gracz 10</span></li>
+                    <li><span><span class="player-num">2.</span>Gracz 11</span></li>
+                    <li><span><span class="player-num">3.</span>Gracz 12</span></li>
+                </ul>
+                <div class="matches-title">Mecze w grupie</div>
+                <div class="match">Gracz 10 <span class="vs">vs</span> Gracz 11</div>
+                <div class="match">Gracz 10 <span class="vs">vs</span> Gracz 12</div>
+                <div class="match">Gracz 11 <span class="vs">vs</span> Gracz 12</div>
+            </div>
+        </div>
+
+        <!-- HARMONOGRAM -->
+        <div class="phase-title">Harmonogram rozgrywek</div>
+        
+        <div class="schedule">
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Tura</th>
+                        <th>Godzina</th>
+                        <th>Faza</th>
+                        <th><span class="table-num table-1">1</span>Stół 1</th>
+                        <th><span class="table-num table-2">2</span>Stół 2</th>
+                        <th><span class="table-num table-3">3</span>Stół 3</th>
+                        <th><span class="table-num table-4">4</span>Stół 4</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td class="time-cell">17:30</td>
+                        <td class="phase-cell phase-grupowa">Grupowa</td>
+                        <td><span class="group-badge a"></span> G1 vs G2</td>
+                        <td><span class="group-badge b"></span> G4 vs G5</td>
+                        <td><span class="group-badge c"></span> G7 vs G8</td>
+                        <td><span class="group-badge d"></span> G10 vs G11</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td class="time-cell">17:50</td>
+                        <td class="phase-cell phase-grupowa">Grupowa</td>
+                        <td><span class="group-badge a"></span> G1 vs G3</td>
+                        <td><span class="group-badge b"></span> G4 vs G6</td>
+                        <td><span class="group-badge c"></span> G7 vs G9</td>
+                        <td><span class="group-badge d"></span> G10 vs G12</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td class="time-cell">18:10</td>
+                        <td class="phase-cell phase-grupowa">Grupowa</td>
+                        <td><span class="group-badge a"></span> G2 vs G3</td>
+                        <td><span class="group-badge b"></span> G5 vs G6</td>
+                        <td><span class="group-badge c"></span> G8 vs G9</td>
+                        <td><span class="group-badge d"></span> G11 vs G12</td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style="background: var(--gold-dark); color: var(--ink); font-family: Georgia, serif; font-weight: 700;">
+                            ☕ 18:30 – 18:40 • PRZERWA (10 min) • Ustalenie wyników grup
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td class="time-cell">18:40</td>
+                        <td class="phase-cell phase-polfinaly">Półfinały</td>
+                        <td>1A vs 1B</td>
+                        <td>1C vs 1D</td>
+                        <td style="color: var(--gold-dark);">—</td>
+                        <td style="color: var(--gold-dark);">—</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td class="time-cell">19:00</td>
+                        <td class="phase-cell phase-final">Finał</td>
+                        <td>🏆 FINAŁ</td>
+                        <td style="color: var(--gold-dark);">—</td>
+                        <td style="color: var(--gold-dark);">—</td>
+                        <td style="color: var(--gold-dark);">—</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="schedule-note">* G1, G2... = Gracz 1, Gracz 2... &nbsp;|&nbsp; 1A = 1. miejsce z grupy A &nbsp;|&nbsp; Zw. QF1 = Zwycięzca ćwierćfinału 1</p>
+        </div>
+
+        <!-- FAZA PUCHAROWA -->
+        <div class="phase-title">Faza Pucharowa</div>
+        
+        <div class="bracket-container">
+            <div class="bracket">
+                <!-- Półfinały -->
+                <div class="round">
+                    <div class="round-title">Półfinały</div>
+                    <div class="matches-col" style="gap: 60px;">
+                        <div class="bracket-match">
+                            <div class="bracket-player">
+                                <span class="group-badge a"></span>
+                                <span class="seed">1A</span> 1. miejsce gr. A
+                            </div>
+                            <div class="bracket-player">
+                                <span class="group-badge b"></span>
+                                <span class="seed">1B</span> 1. miejsce gr. B
+                            </div>
+                        </div>
+                        <div class="bracket-match">
+                            <div class="bracket-player">
+                                <span class="group-badge c"></span>
+                                <span class="seed">1C</span> 1. miejsce gr. C
+                            </div>
+                            <div class="bracket-player">
+                                <span class="group-badge d"></span>
+                                <span class="seed">1D</span> 1. miejsce gr. D
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Finał -->
+                <div class="round">
+                    <div class="round-title">Finał</div>
+                    <div class="matches-col">
+                        <div class="bracket-match final-match">
+                            <div class="bracket-player">Zwycięzca SF1</div>
+                            <div class="bracket-player">Zwycięzca SF2</div>
+                        </div>
+                    </div>
+                    <div class="trophy">🏆</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legenda -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color a"></div>
+                <span>Grupa A</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color b"></div>
+                <span>Grupa B</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color c"></div>
+                <span>Grupa C</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color d"></div>
+                <span>Grupa D</span>
+            </div>
+        </div>
+
+        <!-- Podsumowanie -->
+        <div class="info-box">
+            <h3>📋 Podsumowanie turnieju</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Łączna liczba meczów:</span>
+                    <span class="info-value">15 (12 grupowych + 3 pucharowe)</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Liczba stołów:</span>
+                    <span class="info-value">4 (równolegle)</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Min. mecze na gracza:</span>
+                    <span class="info-value">2 (faza grupowa)</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Max. mecze na gracza:</span>
+                    <span class="info-value">4 (finalista)</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Start turnieju:</span>
+                    <span class="info-value">17:30</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Koniec turnieju:</span>
+                    <span class="info-value">~19:20</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Awans z grupy:</span>
+                    <span class="info-value">1. miejsce (4 z 12)</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Odpada w grupie:</span>
+                    <span class="info-value">8 graczy (2. i 3. miejsca)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
